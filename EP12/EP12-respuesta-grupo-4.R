@@ -3,11 +3,14 @@
 
 # Integrantes:
 # Aarón Ibáñez
-# 
+# Cristhofer Parada
 # 
 # 
 
+library (tidyverse)
 library(ggpubr)
+library (ez)
+library(dplyr)
 
 ################################## PREGUNTA 1 ##################################
 # 1. En el trabajo de título de un estudiante del DIINF se reportan los siguientes
@@ -70,10 +73,59 @@ print(prueba1)
 # diferencia significativa entre las medias geométricas de los tiempos de
 # ejecución requeridos por los algoritmos.
 
+
 ################################## PREGUNTA 2 ##################################
 # 2. Analice la primera pregunta abordada en el ejercicio práctico 11, con los
 # mismos datos, utilizando un método robusto adecuado.
 
+data2 <- read.csv2(file.choose(), check.names = F, encoding = "latin1")
+
+# Establecer semilla y cantidad de repeticiones.
+R = 1000
+set.seed(124)
+
+# La pregunta propuesta es la siguiente:
+# ¿ Existe diferencias entre las medias de edades de personas solteros(a)
+# entre la región de Tarapacá y la región Metropolitana de Santiago.
+
+# Se procede a formular las siguientes hipótesis a contrastar
+# H0: Las edades de las personas solteras(a), en promedio, es igual para ambas regiones.
+
+# HA: Las edades de las personas solteras(a), en promedio, son distintas para ambas regiones.
+
+
+# Primero filtramos por personas solteros
+
+data2 <- data2 %>% filter(ecivil == "Soltero(a)")
+
+# Se selecciona a las columnas de region y edad
+data2 <- data2 %>% select(region, edad)
+
+# Se selecciona especificamente las regiones de la pregunta
+data2 <- filter(data2, region == "Región de Tarapacá" | region == "Región Metropolitana de Santiago")
+
+# Se toma una muestra de 400 datos
+data2 <- sample_n(data2,400)
+
+# Se grafica la muestra para ver la normalida
+g <- ggqqplot(data2, x = "edad", facet.by = "region", palette = c("green","blue"),color = "region")
+print(g)
+
+# Se puede ver que las muestras tomadas no siguen una distribucion normal, especificamente en
+# sus extremos, por lo que una muestra robusta apropiada puede ser la prueba yuan utilizando
+# bootstrapping, usando como estimador la media.
+
+
+prueba2 <- pb2gen(edad ~ region,
+                  data = data2, 
+                  est = "mean",
+                  nboot = R)
+
+print(prueba2)
+
+# Dado que p = 0.544 > 0.05, se falla en rechazar la hipotesis nula con lo que podemos
+# concluir con un 95% de confianza que, en promedio, las edades de personas solteras en
+# ambas regiones son distintas. 
 
 
 ################################## PREGUNTA 3 ##################################
