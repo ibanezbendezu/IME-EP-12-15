@@ -4,8 +4,8 @@
 # Integrantes:
 # Aarón Ibáñez
 # Cristhofer Parada
-# 
-# 
+# Fabricio Montuschi
+# Mauricio Vicencio
 
 library (tidyverse)
 library(ggpubr)
